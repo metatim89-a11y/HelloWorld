@@ -1,21 +1,23 @@
-# dependencies
+# Node
 node_modules/
+npm-debug.log
+yarn-error.log
 
-# logs
+# Logs
 *.log
 .LOGS/
 
-# env
+# Env
 .env
 
-# OS junk
+# OS
 .DS_Store
-Thumbs.db
 
-# temp files
-*.tmp
-*.swp
+# Temp
+tmp/
+temp/
 
-# build
+# Build
 dist/
 build/
+
