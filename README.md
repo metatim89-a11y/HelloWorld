@@ -1,2 +1,10 @@
 # HelloWorld
-First chat gpt project with RobV and timm
+
+Simple Node.js app with:
+- Express server
+- Login authentication
+- Health endpoint
+
+## Run
+npm install
+node index.js
