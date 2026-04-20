@@ -1,0 +1,10 @@
+# File: ./.PROJECT.RC
+# Version: 0.001
+# Purpose: Project environment activation
+
+export PATH="./.SCRIPT:$PATH"
+
+[ -f "./.ALIASES/aliases.sh" ] && source "./.ALIASES/aliases.sh"
+[ -f "./.FUNCTIONS/functions.sh" ] && source "./.FUNCTIONS/functions.sh"
+
+# LLM SIGNATURE: (ChatGPT:GPT-5.3) 04.19.2026:04:48AM:Tim

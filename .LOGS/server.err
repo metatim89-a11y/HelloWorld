@@ -1,0 +1,22 @@
+TypeError [ERR_INVALID_ARG_VALUE]: The argument 'file' cannot be empty. Received ''
+    at normalizeSpawnArguments (node:child_process:572:11)
+    at spawn (node:child_process:789:13)
+    at Object.execFile (node:child_process:349:17)
+    at exec (node:child_process:236:25)
+    at /data/data/com.termux/files/home/RobbieV/projects/HelloWorld/index.js:53:3
+    at Layer.handleRequest (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/layer.js:152:17)
+    at next (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/route.js:157:13)
+    at requireAuth (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/index.js:20:32)
+    at Layer.handleRequest (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/layer.js:152:17)
+    at next (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/route.js:157:13)
+TypeError [ERR_INVALID_ARG_VALUE]: The argument 'file' cannot be empty. Received ''
+    at normalizeSpawnArguments (node:child_process:572:11)
+    at spawn (node:child_process:789:13)
+    at Object.execFile (node:child_process:349:17)
+    at exec (node:child_process:236:25)
+    at /data/data/com.termux/files/home/RobbieV/projects/HelloWorld/index.js:53:3
+    at Layer.handleRequest (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/layer.js:152:17)
+    at next (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/route.js:157:13)
+    at requireAuth (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/index.js:20:32)
+    at Layer.handleRequest (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/layer.js:152:17)
+    at next (/data/data/com.termux/files/home/RobbieV/projects/HelloWorld/node_modules/router/lib/route.js:157:13)

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<body style="background:black;color:lime;font-family:monospace">
+
+<!-- NAV -->
+<div style="position:absolute;top:10px;right:20px">
+  <a href="/" style="color:lime;margin-right:10px">Home</a>
+  <a href="/health" style="color:lime;margin-right:10px">Health</a>
+  <a href="/logout" style="color:red">Logout</a>
+</div>
+
+<h2>Dashboard</h2>
+
+<button onclick="toggle('termBox')">Toggle Terminal</button>
+<button onclick="toggle('chatBox')">Toggle Chat</button>
+
+<!-- TERMINAL -->
+<div id="termBox" style="border:1px solid #333;margin-top:10px;padding:10px">
+  <h3>Terminal</h3>
+  <div id="terminal" style="height:200px;overflow:auto"></div>
+  <input id="cmd" style="width:100%;background:black;color:lime;border:none" placeholder="command..." />
+</div>
+
+<!-- CHAT -->
+<div id="chatBox" style="border:1px solid #333;margin-top:10px;padding:10px">
+  <h3>Chat</h3>
+  <div id="chat" style="height:200px;overflow:auto"></div>
+  <input id="msg" style="width:80%" />
+  <button onclick="sendMsg()">Send</button>
+</div>
+
+<script>
+function toggle(id) {
+  const el = document.getElementById(id);
+  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
+
+// TERMINAL
+document.getElementById('cmd').addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    const cmd = e.target.value;
+
+    const res = await fetch('/api/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd })
+    });
+
+    const data = await res.json();
+
+    const term = document.getElementById('terminal');
+    term.innerText += "\\n$ " + cmd + "\\n" + data.output;
+    term.scrollTop = term.scrollHeight;
+
+    e.target.value = "";
+  }
+});
+
+// CHAT
+async function loadChat() {
+  const res = await fetch('/api/chat');
+  const data = await res.json();
+
+  document.getElementById('chat').innerText =
+    data.map(m => "[" + m.user + "] " + m.text).join("\\n");
+}
+
+async function sendMsg() {
+  const text = document.getElementById('msg').value;
+
+  await fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ text })
+  });
+
+  document.getElementById('msg').value = "";
+  loadChat();
+}
+
+setInterval(loadChat, 2000);
+</script>
+
+</body>
+</html>
