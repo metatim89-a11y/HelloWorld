@@ -1,84 +1,66 @@
 body {
   margin:0;
-  background: linear-gradient(135deg,#0f172a,#020617);
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#1e1e2f,#12121a);
   color:white;
-  font-family:Arial;
-  overflow:hidden;
 }
 
-.navbar {
+#nav {
   display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter: blur(10px);
-}
-
-#desktop {
-  position:relative;
-  width:100vw;
-  height:100vh;
-}
-
-.window {
-  position:absolute;
-  width:300px;
-  min-height:200px;
-  border-radius:10px;
-}
-
-.glass {
-  background: rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-}
-
-.titlebar {
-  display:flex;
-  justify-content:space-between;
-  padding:5px;
-  background:rgba(0,0,0,0.3);
-  cursor:move;
-}
-
-.content {
+  gap:10px;
   padding:10px;
 }
 
-.resize-handle {
-  width:12px;
-  height:12px;
-  background: rgba(255,255,255,0.4);
-  position:absolute;
-  bottom:5px;
-  right:5px;
-  cursor:nwse-resize;
-  border-radius:3px;
+.page { display:none; }
+.page.active { display:block; }
+
+.card {
+  margin:20px;
+  padding:15px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
 }
 
-.board {
-  display:grid;
-  grid-template-columns:repeat(3,60px);
-  gap:5px;
-}
-
-.cell {
-  height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:black;
+button {
+  margin:2px;
+  padding:8px;
+  border:none;
+  border-radius:6px;
   cursor:pointer;
 }
 
-.messages {
-  height:100px;
-  overflow:auto;
+#board button {
+  width:40px;
+  height:40px;
 }
 
-.terminal {
-  height:100px;
-  background:black;
-  color:lime;
-  overflow:auto;
+/* ===== THEMES ===== */
+body.theme-dark {
+  background:linear-gradient(135deg,#1e1e2f,#12121a);
+  color:white;
+}
+
+body.theme-light {
+  background:#f5f5f5;
+  color:#111;
+}
+
+body.theme-light .card {
+  background:rgba(0,0,0,0.05);
+}
+
+body.theme-neon {
+  background:#000;
+  color:#0ff;
+}
+
+body.theme-neon .card {
+  background:rgba(0,255,255,0.1);
+  box-shadow:0 0 10px #0ff;
+}
+
+body.theme-neon button {
+  background:#111;
+  color:#0ff;
+  border:1px solid #0ff;
 }
