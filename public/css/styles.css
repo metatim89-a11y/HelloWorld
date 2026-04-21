@@ -1,0 +1,84 @@
+body {
+  margin:0;
+  background: linear-gradient(135deg,#0f172a,#020617);
+  color:white;
+  font-family:Arial;
+  overflow:hidden;
+}
+
+.navbar {
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+}
+
+#desktop {
+  position:relative;
+  width:100vw;
+  height:100vh;
+}
+
+.window {
+  position:absolute;
+  width:300px;
+  min-height:200px;
+  border-radius:10px;
+}
+
+.glass {
+  background: rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.titlebar {
+  display:flex;
+  justify-content:space-between;
+  padding:5px;
+  background:rgba(0,0,0,0.3);
+  cursor:move;
+}
+
+.content {
+  padding:10px;
+}
+
+.resize-handle {
+  width:12px;
+  height:12px;
+  background: rgba(255,255,255,0.4);
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  cursor:nwse-resize;
+  border-radius:3px;
+}
+
+.board {
+  display:grid;
+  grid-template-columns:repeat(3,60px);
+  gap:5px;
+}
+
+.cell {
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:black;
+  cursor:pointer;
+}
+
+.messages {
+  height:100px;
+  overflow:auto;
+}
+
+.terminal {
+  height:100px;
+  background:black;
+  color:lime;
+  overflow:auto;
+}

@@ -1,84 +1,265 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:lime;font-family:monospace">
+<head>
+  <title>HelloWorld</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
 
-<!-- NAV -->
-<div style="position:absolute;top:10px;right:20px">
-  <a href="/" style="color:lime;margin-right:10px">Home</a>
-  <a href="/health" style="color:lime;margin-right:10px">Health</a>
-  <a href="/logout" style="color:red">Logout</a>
+<div class="navbar">
+  <h2>HelloWorld</h2>
+  <div>
+    <button onclick="createWindow('home')">Home</button>
+    <button onclick="createWindow('games')">Games</button>
+    <button onclick="createWindow('chat')">Chat</button>
+    <button onclick="createWindow('terminal')">Terminal</button>
+  </div>
 </div>
 
-<h2>Dashboard</h2>
+<div id="desktop"></div>
 
-<button onclick="toggle('termBox')">Toggle Terminal</button>
-<button onclick="toggle('chatBox')">Toggle Chat</button>
-
-<!-- TERMINAL -->
-<div id="termBox" style="border:1px solid #333;margin-top:10px;padding:10px">
-  <h3>Terminal</h3>
-  <div id="terminal" style="height:200px;overflow:auto"></div>
-  <input id="cmd" style="width:100%;background:black;color:lime;border:none" placeholder="command..." />
-</div>
-
-<!-- CHAT -->
-<div id="chatBox" style="border:1px solid #333;margin-top:10px;padding:10px">
-  <h3>Chat</h3>
-  <div id="chat" style="height:200px;overflow:auto"></div>
-  <input id="msg" style="width:80%" />
-  <button onclick="sendMsg()">Send</button>
-</div>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
-function toggle(id) {
-  const el = document.getElementById(id);
-  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
-}
+let zIndex = 1;
+let nextX = 50;
+let nextY = 50;
+let moveMode = new WeakMap();
+let socket;
 
-// TERMINAL
-document.getElementById('cmd').addEventListener('keydown', async (e) => {
-  if (e.key === 'Enter') {
-    const cmd = e.target.value;
+// ===== CREATE WINDOW =====
+function createWindow(type) {
+  const win = document.createElement('div');
+  win.className = 'window glass';
 
-    const res = await fetch('/api/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cmd })
-    });
+  // spawn position
+  win.style.top = nextY + 'px';
+  win.style.left = nextX + 'px';
+  win.style.zIndex = zIndex++;
 
-    const data = await res.json();
+  nextX += 40;
+  nextY += 40;
 
-    const term = document.getElementById('terminal');
-    term.innerText += "\\n$ " + cmd + "\\n" + data.output;
-    term.scrollTop = term.scrollHeight;
+  if (nextX > window.innerWidth - 300) nextX = 50;
+  if (nextY > window.innerHeight - 200) nextY = 50;
 
-    e.target.value = "";
-  }
-});
+  win.innerHTML = `
+    <div class="titlebar">
+      <span>${type}</span>
+      <div>
+        <button onclick="toggleMove(this)">Move</button>
+        <button onclick="minimize(this)">_</button>
+        <button onclick="closeWin(this)">X</button>
+      </div>
+    </div>
+    <div class="content"></div>
+    <div class="resize-handle"></div>
+  `;
 
-// CHAT
-async function loadChat() {
-  const res = await fetch('/api/chat');
-  const data = await res.json();
+  document.getElementById('desktop').appendChild(win);
 
-  document.getElementById('chat').innerText =
-    data.map(m => "[" + m.user + "] " + m.text).join("\\n");
-}
+  makeDraggable(win);
+  makeResizable(win);
 
-async function sendMsg() {
-  const text = document.getElementById('msg').value;
-
-  await fetch('/api/chat', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ text })
+  // bring to front on click
+  win.addEventListener('mousedown', () => {
+    win.style.zIndex = zIndex++;
   });
 
-  document.getElementById('msg').value = "";
-  loadChat();
+  renderContent(win.querySelector('.content'), type);
 }
 
-setInterval(loadChat, 2000);
+// ===== MOVE TOGGLE =====
+function toggleMove(btn) {
+  const win = btn.closest('.window');
+  const isMoving = moveMode.get(win);
+
+  moveMode.set(win, !isMoving);
+  btn.style.background = !isMoving ? 'lime' : '';
+}
+
+// ===== DRAG =====
+function makeDraggable(win) {
+  const bar = win.querySelector('.titlebar');
+
+  let offsetX = 0;
+  let offsetY = 0;
+  let dragging = false;
+
+  bar.addEventListener('mousedown', (e) => {
+    if (!moveMode.get(win)) return;
+
+    dragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    x = Math.max(0, Math.min(window.innerWidth - win.offsetWidth, x));
+    y = Math.max(0, Math.min(window.innerHeight - win.offsetHeight, y));
+
+    win.style.left = x + 'px';
+    win.style.top = y + 'px';
+  });
+
+  document.addEventListener('mouseup', () => dragging = false);
+}
+
+// ===== RESIZE =====
+function makeResizable(win) {
+  const handle = win.querySelector('.resize-handle');
+
+  let resizing = false;
+
+  handle.addEventListener('mousedown', () => resizing = true);
+
+  document.addEventListener('mousemove', (e) => {
+    if (!resizing) return;
+
+    win.style.width = (e.clientX - win.offsetLeft) + 'px';
+    win.style.height = (e.clientY - win.offsetTop) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => resizing = false);
+}
+
+// ===== WINDOW CONTROLS =====
+function closeWin(btn) {
+  btn.closest('.window').remove();
+}
+
+function minimize(btn) {
+  const win = btn.closest('.window');
+  const content = win.querySelector('.content');
+  content.style.display =
+    content.style.display === 'none' ? 'block' : 'none';
+}
+
+// ===== CONTENT =====
+function renderContent(el, type) {
+
+  if (type === 'home') {
+    fetch('/me',{credentials:'include'})
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          el.innerHTML = `<h3>Welcome ${data.user.name}</h3>`;
+        } else {
+          el.innerHTML = `
+            <input id="username" placeholder="Username"/>
+            <button onclick="login()">Login</button>
+          `;
+        }
+      });
+  }
+
+  if (type === 'games') {
+    el.innerHTML = `<div class="board"></div>`;
+    initGame(el);
+  }
+
+  if (type === 'chat') {
+    el.innerHTML = `
+      <div class="messages"></div>
+      <input class="msg"/>
+      <button onclick="sendMsg(this)">Send</button>
+    `;
+    initChat(el);
+  }
+
+  if (type === 'terminal') {
+    el.innerHTML = `
+      <div class="terminal"></div>
+      <input class="cmd"/>
+      <button onclick="runCmd(this)">Run</button>
+    `;
+  }
+}
+
+// ===== LOGIN =====
+async function login() {
+  const username = document.getElementById('username').value;
+
+  const res = await fetch('/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ username }),
+    credentials:'include'
+  });
+
+  if (!res.ok) return alert("Invalid");
+  alert("Logged in");
+}
+
+// ===== CHAT =====
+function initChat(el) {
+  socket = io();
+
+  socket.on('chat', msg => {
+    const div = document.createElement('div');
+    div.innerText = msg.user + ": " + msg.message;
+    el.querySelector('.messages').appendChild(div);
+  });
+}
+
+function sendMsg(btn) {
+  const win = btn.closest('.window');
+  const input = win.querySelector('.msg');
+
+  socket.emit('chat', { user:'Me', message:input.value });
+  input.value="";
+}
+
+// ===== TERMINAL =====
+async function runCmd(btn) {
+  const win = btn.closest('.window');
+  const cmd = win.querySelector('.cmd').value;
+
+  const res = await fetch('/terminal',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ cmd })
+  });
+
+  const data = await res.json();
+
+  win.querySelector('.terminal').innerText +=
+    "\n$ " + cmd + "\n" + data.output;
+}
+
+// ===== GAME =====
+function initGame(el) {
+  let board = ["","","","","","","","",""];
+  let player = "X";
+
+  function draw() {
+    const b = el.querySelector('.board');
+    b.innerHTML = "";
+
+    board.forEach((v,i)=>{
+      const d=document.createElement('div');
+      d.className="cell";
+      d.innerText=v;
+
+      d.onclick=()=>{
+        if(!board[i]){
+          board[i]=player;
+          player = player==="X"?"O":"X";
+          draw();
+        }
+      };
+
+      b.appendChild(d);
+    });
+  }
+
+  draw();
+}
 </script>
 
 </body>

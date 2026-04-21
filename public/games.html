@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Games</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    h1 { margin-top: 20px; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2em;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div class="board" id="board"></div>
+
+<div id="status">Player X's turn</div>
+<button onclick="resetGame()">Restart</button>
+
+<script>
+let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameActive = true;
+
+const boardEl = document.getElementById("board");
+const statusEl = document.getElementById("status");
+
+function renderBoard() {
+  boardEl.innerHTML = "";
+  board.forEach((cell, i) => {
+    const btn = document.createElement("button");
+    btn.classList.add("cell");
+    btn.innerText = cell;
+    btn.onclick = () => makeMove(i);
+    boardEl.appendChild(btn);
+  });
+}
+
+function makeMove(index) {
+  if (!gameActive || board[index] !== "") return;
+
+  board[index] = currentPlayer;
+  renderBoard();
+
+  if (checkWinner()) {
+    statusEl.innerText = currentPlayer + " wins!";
+    gameActive = false;
+    return;
+  }
+
+  if (!board.includes("")) {
+    statusEl.innerText = "Draw!";
+    gameActive = false;
+    return;
+  }
+
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  statusEl.innerText = "Player " + currentPlayer + "'s turn";
+}
+
+function checkWinner() {
+  const wins = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  return wins.some(([a,b,c]) =>
+    board[a] && board[a] === board[b] && board[a] === board[c]
+  );
+}
+
+function resetGame() {
+  board = ["", "", "", "", "", "", "", "", ""];
+  currentPlayer = "X";
+  gameActive = true;
+  statusEl.innerText = "Player X's turn";
+  renderBoard();
+}
+
+renderBoard();
+</script>
+
+</body>
+</html>
