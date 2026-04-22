@@ -8,6 +8,7 @@ mkdir -p ./.LOGS
 bash ./.SCRIPT/auto_log.sh
 
 pkill -f index.js 2>/dev/null
+pkill -f llama-server 2>/dev/null
 
 nohup node ./index.js >> ./server.log 2>> ./.LOGS/error.log &
 

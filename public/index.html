@@ -4,181 +4,522 @@
 <title>Platform</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="theme-dark">
+<body>
 
+<!-- NAV_UI -->
 <div id="nav">
-  <button onclick="openPage('home')">Home</button>
-  <button onclick="openPage('games')">Games</button>
-  <button onclick="openPage('chat')">Chat</button>
-  <button onclick="openPage('profile')">Profile</button>
+<button onclick="openPage('home')" id="nav-home">Home</button>
+<button onclick="openPage('games')" id="nav-games">Games</button>
+<button onclick="openPage('chat')" id="nav-chat">Chat</button>
+<button onclick="showProfile()" id="nav-profile">Profile</button>
+<button onclick="loadExplorer()" id="nav-explorer">Files</button>
+<button onclick="openPage('terminal')" id="nav-terminal">Terminal</button>
 
-  <button onclick="setTheme('dark')">Dark</button>
-  <button onclick="setTheme('light')">Light</button>
-  <button onclick="setTheme('neon')">Neon</button>
+<div class="flex-right">
+  <span id="onlineCount" style="color:var(--success); font-weight: 600;">Online: 0</span>
+  <div class="dropdown">
+    <button class="dropbtn">Themes</button>
+    <div class="dropdown-content">
+      <a href="#" onclick="setTheme('dark')">Dark</a>
+      <a href="#" onclick="setTheme('light')">Light</a>
+      <a href="#" onclick="setTheme('neon')">Neon</a>
+      <a href="#" onclick="setTheme('wood')">Wood</a>
+    </div>
+  </div>
 </div>
+</div>
+<!-- END_NAV_UI -->
 
-<div id="pages">
-
-<div class="page active" id="home">
-<div class="card">
-<input id="user" placeholder="user">
-<input id="pass" placeholder="pass">
-<button onclick="login()">Login</button>
-<button onclick="visitor()">Visitor</button>
-</div>
-</div>
-
-<div class="page" id="games">
-<div class="card">
-<h2>Games</h2>
-<button onclick="loadGame('chess')">Chess</button>
-<button onclick="loadGame('tictactoe')">TicTacToe</button>
-<div id="gameContainer"></div>
-</div>
+<div class="global-banner">
+  <div class="banner-text">RobV HelloWorld TimM</div>
 </div>
 
-<div class="page" id="chat">
-<div class="card">
-<div id="users"></div>
-<div id="chatBox"></div>
-<input id="msg">
-<button onclick="sendChat()">Send</button>
-</div>
+<div class="main-container">
+
+<div id="home" class="page">
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin:auto">
+    <div class="card">
+      <h3 style="margin-top:0">Login</h3>
+      <p style="color:var(--text-secondary); font-size: 0.9rem;">Welcome back! Please enter your credentials.</p>
+      <input id="user" placeholder="Username"><br><br>
+      <input id="pass" type="password" placeholder="Password"><br><br>
+      <div style="display:flex; gap:10px">
+        <button onclick="login()" style="flex:1">Login</button>
+        <button onclick="loginVisitor()" style="background:var(--nav-bg); border:1px solid var(--border-color); color:var(--text-color);">Visitor</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-top:0">Sign Up</h3>
+      <p style="color:var(--text-secondary); font-size: 0.9rem;">New here? Create an account to save your progress.</p>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+        <input id="regUser" placeholder="Username">
+        <input id="regPass" type="password" placeholder="Password">
+        <input id="regName" placeholder="Full Name">
+        <input id="regEmail" placeholder="Email">
+        <input id="regPhone" placeholder="Phone Number">
+        <input id="regAddress" placeholder="Address">
+      </div>
+      <br>
+      <button onclick="signup()" style="width:100%">Create Account</button>
+    </div>
+  </div>
 </div>
 
-<div class="page" id="profile">
-<div class="card" id="profileData"></div>
+<div id="games" class="page">
+  <div class="card" style="display:flex; gap:20px;">
+    <div style="flex:1;">
+      <div id="gameList" style="display:flex; gap:10px; margin-bottom:20px;"></div>
+      <div id="gameStatus" style="padding:15px; border-radius:8px; background:rgba(0,0,0,0.2); font-weight:600; color:var(--warning); text-align:center;">Select a game to play</div>
+      <div id="game"></div>
+    </div>
+    <div style="width:300px; display:flex; flex-direction:column; gap:20px; border-left:1px solid var(--border-color); padding-left:20px;">
+      <div>
+        <h4 style="margin-top:0">Players & Spectators</h4>
+        <div id="gameSpectators" style="font-size:0.85rem; color:var(--text-secondary); max-height:100px; overflow-y:auto;">
+          Join a game to see who is here.
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; min-height:250px;">
+        <h4 style="margin-top:0">Game Chat</h4>
+        <div id="gameChatBox" style="flex:1; background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; overflow-y:auto; border:1px solid var(--border-color); margin-bottom:10px; font-size:0.85rem;"></div>
+        <div style="display:flex; gap:5px;">
+          <input id="gameMsg" placeholder="Chat here..." onkeydown="if(event.key==='Enter') sendGameChat()" style="padding:8px; flex:1;">
+          <button onclick="sendGameChat()" style="padding:8px 12px;">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
+<div id="chat" class="page card" style="padding:0; overflow:hidden;">
+  <div class="chat-container">
+    <div class="chat-sidebar" style="border-right:1px solid var(--border-color); padding:20px;">
+      <h3 style="margin-top:0">Community</h3>
+      <div id="userListSidebar"></div>
+    </div>
+    <div class="chat-main" style="padding:20px;">
+      <div id="chatBox"></div>
+      <div class="chat-input" style="margin-top:15px; display:flex; gap:10px;">
+        <input id="msg" placeholder="Write something..." onkeydown="if(event.key==='Enter') send()" style="flex:1;">
+        <button onclick="send()">Send</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div id="profile" class="page">
+  <div class="card">
+    <h2 style="margin-top:0">User Profile</h2>
+    <div id="profileStats">Loading...</div>
+  </div>
+</div>
+
+<div id="explorer" class="page">
+  <div class="card">
+    <h2 style="margin-top:0">Files</h2>
+    <div id="fileList"></div>
+  </div>
+</div>
+
+<div id="editor" class="page card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <h3 id="currentFile" style="margin:0">Editor</h3>
+    <div style="display:flex; gap:8px">
+      <button onclick="saveFile()">Save</button>
+      <button onclick="runFile()" style="background:var(--success)">Run</button>
+      <button onclick="openPage('explorer')" style="background:var(--nav-bg); border:1px solid var(--border-color); color:var(--text-color);">Close</button>
+    </div>
+  </div>
+  <textarea id="codeEditor" style="width:100%; height:500px; padding:15px;"></textarea>
+  <div id="runOutput" style="margin-top:15px; padding:15px; background:#000; color:#0f0; font-family:monospace; border-radius:8px; display:none;"></div>
+</div>
+
+<div id="terminal" class="page card" style="padding:0; overflow:hidden;">
+  <div id="terminalOutput" style="height:500px; background:#020617; color:#38bdf8; font-family:'JetBrains Mono', monospace; padding:20px; overflow-y:auto;"></div>
+  <div style="display:flex; background:#0f172a; border-top:1px solid var(--border-color);">
+    <span style="padding:12px 20px; color:var(--accent-color); font-weight:bold;">❯</span>
+    <input id="terminalInput" style="flex:1; background:transparent; border:none; color:#fff; padding:12px 0; font-family:monospace;" onkeydown="if(event.key==='Enter') sendTerminal()">
+  </div>
+</div>
+
+</div> <!-- END main-container -->
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
 
-let board=[], tttBoard=[], player="white", myName="", roomId="room1", selected=null;
+// CORE_STATE
+const socket=io();
+let state={};
 
-// NAV
+// NAV_LOGIC
+function setTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+}
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) setTheme(savedTheme);
+
 function openPage(id){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- document.getElementById(id).classList.add("active");
- if(id==="profile") loadProfile();
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.remove("active"));
+  
+  let el = document.getElementById(id);
+  if(el){
+    el.style.display="block";
+    let btn = document.getElementById("nav-" + id);
+    if(btn) btn.classList.add("active");
+  }
 }
 
-// LOGIN
+// Default page
+openPage('home');
+
+function showProfile() {
+  openPage('profile');
+  fetch('/api/profile')
+    .then(r => r.json())
+    .then(d => {
+      const stats = d.stats;
+      const p = d.profile || {};
+      const history = d.history || [];
+      
+      let html = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px">
+          <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:12px;">
+            <h3 style="color:var(--accent-color); margin-top:0;">${d.username}</h3>
+            <div style="display:grid; gap:10px; font-size:0.95rem;">
+              <div><b>Name:</b> ${p.name || 'N/A'}</div>
+              <div><b>Email:</b> ${p.email || 'N/A'}</div>
+              <div><b>Phone:</b> ${p.phone || 'N/A'}</div>
+              <div><b>Address:</b> ${p.address || 'N/A'}</div>
+            </div>
+            <hr style="opacity:0.05; margin:20px 0;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; text-align:center;">
+              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px;">
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--success)">${stats.wins}</div>
+                <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.6">Wins</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px;">
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--error)">${stats.losses}</div>
+                <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.6">Losses</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 style="margin-top:0">Recent Matches</h3>
+            <div style="max-height:400px; overflow-y:auto; border-radius:12px; border:1px solid var(--border-color);">
+              <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <tr style="background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border-color);">
+                  <th align="left" style="padding:12px;">Game</th>
+                  <th align="left" style="padding:12px;">Result</th>
+                  <th align="left" style="padding:12px;">Opponent</th>
+                </tr>
+                ${history.map(h => `
+                  <tr style="border-bottom:1px solid var(--border-color);">
+                    <td style="padding:12px;">${h.game}</td>
+                    <td style="padding:12px; color:${h.result==='Win'?'var(--success)':h.result==='Loss'?'var(--error)':'var(--warning)'}">${h.result}</td>
+                    <td style="padding:12px; opacity:0.8">${h.opponent}</td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      if (d.isGuest) html += `<p style="color:var(--warning); margin-top:20px; font-size:0.8rem;"><i>Note: Guest stats are temporary.</i></p>`;
+      document.getElementById('profileStats').innerHTML = html;
+    });
+}
+
+function signup() {
+  const data = {
+    username: document.getElementById("regUser").value,
+    password: document.getElementById("regPass").value,
+    name: document.getElementById("regName").value,
+    email: document.getElementById("regEmail").value,
+    phone: document.getElementById("regPhone").value,
+    address: document.getElementById("regAddress").value
+  };
+
+  fetch("/api/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) alert("Welcome! Please login.");
+    else alert("Error: " + d.error);
+  });
+}
+
+function loginVisitor(){
+  fetch("/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username:"Guest_" + Math.floor(Math.random()*1000), password:"guest", isGuest:true})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.success) {
+      socket.emit("join",{room:"room1",username:d.username}); // Need to handle server returning name
+      location.reload(); // Simple way to reset state
+    }
+  });
+}
+
 function login(){
- myName=document.getElementById("user").value;
- let password=document.getElementById("pass").value;
+  const username = document.getElementById("user").value;
+  const password = document.getElementById("pass").value;
 
- fetch("/login",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({username:myName,password})
- })
- .then(r=>r.json())
- .then(d=>{
-  if(!d.success) return alert("Login failed");
-  socket.emit("joinRoom",{roomId,username:myName});
-  openPage("games");
- });
+  fetch("/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username,password})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.success) {
+      socket.emit("join",{room:"room1",username});
+      openPage('games');
+    } else alert("Invalid credentials");
+  });
 }
 
-function visitor(){
- myName="Visitor_"+Math.floor(Math.random()*9999);
- socket.emit("joinRoom",{roomId,username:myName});
- openPage("games");
+// DEV_TOOLS
+let currentFilePath = "";
+function loadExplorer(dir = ".") {
+  openPage('explorer');
+  fetch(`/api/files?path=${encodeURIComponent(dir)}`)
+    .then(r => r.json())
+    .then(files => {
+      let html = "";
+      if (dir !== ".") {
+        const parent = dir.split('/').slice(0, -1).join('/') || ".";
+        html += `<button onclick="loadExplorer('${parent}')" style="background:rgba(255,255,255,0.05)">📁 ..</button>`;
+      }
+      files.forEach(f => {
+        const action = f.isDir ? `loadExplorer('${f.path}')` : `openFile('${f.path}')`;
+        html += `<button onclick="${action}">${f.isDir ? "📁" : "📄"} ${f.name}</button>`;
+      });
+      document.getElementById('fileList').innerHTML = html;
+    });
 }
 
-// GAMES
+function openFile(path) {
+  currentFilePath = path;
+  document.getElementById('currentFile').innerText = path;
+  openPage('editor');
+  fetch(`/api/read?path=${encodeURIComponent(path)}`)
+    .then(r => r.text())
+    .then(content => {
+      document.getElementById('codeEditor').value = content;
+    });
+}
+
+function saveFile() {
+  fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: currentFilePath, content: document.getElementById('codeEditor').value })
+  }).then(() => alert("Saved"));
+}
+
+function runFile() {
+  const out = document.getElementById('runOutput');
+  out.style.display = "block";
+  out.innerText = "Processing...";
+  fetch('/api/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: currentFilePath })
+  }).then(r => r.json()).then(d => {
+    out.innerText = d.stdout || d.stderr || d.error;
+    out.style.color = d.error ? "var(--error)" : "var(--success)";
+  });
+}
+
+function sendTerminal() {
+  const input = document.getElementById('terminalInput');
+  if (!input.value) return;
+  socket.emit("terminal", input.value);
+  document.getElementById('terminalOutput').innerHTML += `<div><span style="color:var(--accent-color)">❯</span> ${input.value}</div>`;
+  input.value = "";
+}
+
+socket.on("terminal", d => {
+  const out = document.getElementById('terminalOutput');
+  if (d.stdout) out.innerHTML += `<div>${d.stdout}</div>`;
+  if (d.stderr) out.innerHTML += `<div style="color:var(--error)">${d.stderr}</div>`;
+  out.scrollTop = out.scrollHeight;
+});
+
+// GAME_LOGIC
+socket.on("userList", d => {
+  document.getElementById("onlineCount").innerText = "Online: " + d.online.length;
+  const sidebar = document.getElementById("userListSidebar");
+  if (sidebar) {
+    let html = "";
+    const allUsers = Array.from(new Set([...d.all, ...d.online])).sort();
+    allUsers.forEach(u => {
+      const isOnline = d.online.includes(u);
+      html += `
+        <div class="user-item" style="opacity: ${isOnline ? 1 : 0.4}; margin: 8px 0;">
+          <div class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
+          <span style="font-size:0.9rem">${u}</span>
+        </div>
+      `;
+    });
+    sidebar.innerHTML = html;
+  }
+});
+
+socket.on("state", s => {
+  state = s || {};
+  let list = "";
+  Object.keys(state).forEach(g => {
+    list += `<button onclick="loadGame('${g}')" style="background:var(--nav-bg); border:1px solid var(--border-color); color:var(--text-color);">${g.charAt(0).toUpperCase() + g.slice(1)}</button>`;
+  });
+  document.getElementById("gameList").innerHTML = list;
+});
+
+socket.on("game", d => {
+  state[d.game] = d.state;
+  if (document.getElementById("game").dataset.activeGame === d.game || !document.getElementById("game").dataset.activeGame) {
+    loadGame(d.game);
+  }
+});
+
+let currentGameName = "";
+function sendGameChat(){
+  const input = document.getElementById("gameMsg");
+  if(!input.value || !currentGameName) return;
+  socket.emit("gameChat",{game: currentGameName, msg:input.value});
+  input.value = "";
+}
+
+socket.on("gameChat", d => {
+  if (d.game === currentGameName) {
+    const box = document.getElementById("gameChatBox");
+    box.innerHTML += `<div style="margin-bottom:5px;"><b>${d.user}:</b> <span style="opacity:0.9">${d.msg}</span></div>`;
+    box.scrollTop = box.scrollHeight;
+  }
+});
+
+let cachedAllUsers = [];
+let cachedOnlineUsers = [];
+
+socket.on("userList", d => {
+  cachedAllUsers = d.all;
+  cachedOnlineUsers = d.online;
+  document.getElementById("onlineCount").innerText = "Online: " + d.online.length;
+  const sidebar = document.getElementById("userListSidebar");
+  if (sidebar) {
+    let html = "";
+    const allUsers = Array.from(new Set([...d.all, ...d.online])).sort();
+    allUsers.forEach(u => {
+      const isOnline = d.online.includes(u);
+      html += `
+        <div class="user-item" style="opacity: ${isOnline ? 1 : 0.4}; margin: 8px 0;">
+          <div class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
+          <span style="font-size:0.9rem">${u}</span>
+        </div>
+      `;
+    });
+    sidebar.innerHTML = html;
+  }
+  updateSpectators();
+});
+
+function updateSpectators() {
+  if (!currentGameName || !state[currentGameName]) return;
+  const g = state[currentGameName];
+  const specEl = document.getElementById("gameSpectators");
+  if (!specEl) return;
+  
+  const players = Object.keys(g.players || {});
+  let html = `<div style="margin-bottom:5px; color:#fff;"><b>Players:</b><br>${players.length > 0 ? players.join(', ') : 'None yet'}</div>`;
+  if (g.aiEnabled || g.llmEnabled) html += `<div><b>AI:</b> ${g.llmEnabled ? 'Gemma' : 'CPU'}</div>`;
+  
+  const spectators = cachedOnlineUsers.filter(u => !players.includes(u));
+  html += `<div style="margin-top:10px;"><b>Spectators:</b><br>${spectators.length > 0 ? spectators.join(', ') : 'None'}</div>`;
+  
+  specEl.innerHTML = html;
+}
+
 function loadGame(name){
- if(name==="chess"){
-  document.getElementById("gameContainer").innerHTML="<div id='board'></div>";
-  draw();
- }
- if(name==="tictactoe"){
-  document.getElementById("gameContainer").innerHTML="<div id='ttt'></div>";
-  drawTTT();
- }
+  currentGameName = name;
+  document.getElementById("game").dataset.activeGame = name;
+  const g = state[name];
+  const statusEl = document.getElementById("gameStatus");
+  let statusText = g.winner ? (g.winner === "draw" ? "Game Draw!" : "Winner: " + g.winner) : "Turn: " + g.turn;
+  if (g.llmEnabled) statusText += " (Gemma AI)";
+  else if (g.aiEnabled) statusText += " (CPU)";
+  statusEl.innerText = statusText;
+
+  if(name==="chess") drawChess(g);
+  else if(name==="connect4") drawC4(g);
+  else if(name==="tictactoe") drawTTT(g);
+  
+  document.getElementById("game").innerHTML += `
+    <div class="game-controls" style="margin-top:20px; display:flex; justify-content:center; gap:10px">
+      <button onclick="gameAction('${name}', 'undo')" style="background:var(--nav-bg)">Undo</button>
+      <button onclick="gameAction('${name}', 'reset')" style="background:var(--nav-bg)">Reset</button>
+      <button onclick="gameAction('${name}', 'toggleAI')" style="background:var(--nav-bg)">Vs CPU</button>
+      <button onclick="gameAction('${name}', 'toggleLLM')" style="background:var(--accent-color)">Vs Gemma (AI)</button>
+    </div>
+  `;
+  
+  updateSpectators();
 }
 
-// CHESS
-function draw(){
- let html="";
- board.forEach((p,i)=>{
-  html+=`<button onclick="clickCell(${i})">${p||"."}</button>`;
-  if((i+1)%8===0) html+="<br>";
- });
- document.getElementById("board").innerHTML=html;
+
+// DRAWING FUNCTIONS (Keep existing logic but apply new classes if needed)
+function drawChess(g){
+  let h='<div class="board chess-board" style="grid-template-columns:repeat(8, 55px);">';
+  const pieces = {'K':'♚','Q':'♛','R':'♜','B':'♝','N':'♞','P':'♟','k':'♚','q':'♛','r':'♜','b':'♝','n':'♞','p':'♟'};
+  g.board.forEach((p,i)=>{
+    const isBlack = (Math.floor(i/8) + (i%8)) % 2 === 1;
+    const style = p ? (p===p.toUpperCase() ? "color:#fff; text-shadow:0 0 4px #000;" : "color:#000; text-shadow:0 0 4px #fff;") : "";
+    h+=`<div class="cell" style="background:${isBlack?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.05)'}; width:55px; height:55px; ${style} ${g.sel===i?'background:rgba(56,189,248,0.4)!important;':''}" onclick="move('chess',${i})">${pieces[p]||''}</div>`;
+  });
+  document.getElementById("game").innerHTML = h + '</div>';
 }
 
-function clickCell(i){
- if(selected===null){ selected=i; }
- else{
-  socket.emit("move",{gameType:"chess",move:{from:selected,to:i},player});
-  selected=null;
- }
+function drawC4(g){
+  let h='<div class="board c4-board" style="grid-template-columns:repeat(7, 60px);">';
+  g.board.forEach((p,i)=>{
+    const color = p === 'red' ? 'red' : (p === 'yellow' ? 'yellow' : '');
+    const win = g.winLine && g.winLine.includes(i) ? 'win-animate' : '';
+    h+=`<div class="cell" style="width:60px; height:60px;" onclick="move('connect4',${i%7})"><div class="c4-cell ${color} ${win}"></div></div>`;
+  });
+  document.getElementById("game").innerHTML = h + '</div>';
 }
 
-// TTT
-function drawTTT(){
- let html="";
- tttBoard.forEach((v,i)=>{
-  html+=`<button onclick="clickTTT(${i})">${v||"."}</button>`;
-  if((i+1)%3===0) html+="<br>";
- });
- document.getElementById("ttt").innerHTML=html;
+function drawTTT(g){
+  let h='<div class="board ttt-board" style="grid-template-columns:repeat(3, 100px);">';
+  g.board.forEach((p,i)=>{
+    const win = g.winLine && g.winLine.includes(i) ? 'win-animate' : '';
+    h+=`<div class="cell ttt-cell ${win}" data-val="${p}" onclick="move('tictactoe',${i})">${p}</div>`;
+  });
+  document.getElementById("game").innerHTML = h + '</div>';
 }
 
-function clickTTT(i){
- socket.emit("move",{gameType:"tictactoe",move:{index:i}});
+function move(game,action){ socket.emit("game",{game,action,type:'move'}); }
+function gameAction(game, type){ socket.emit("game",{game, type}); }
+function send(){
+  const input = document.getElementById("msg");
+  if(!input.value) return;
+  socket.emit("chat",{msg:input.value});
+  input.value = "";
 }
-
-// SOCKET
-socket.on("update", ({gameType,game})=>{
- if(gameType==="chess"){
-  board=game.board;
-  draw();
- }
- if(gameType==="tictactoe"){
-  tttBoard=game.board;
-  drawTTT();
-  if(game.winner) alert("Winner: "+game.winner);
- }
-});
-
-socket.on("userList", data=>{
- let html="";
- data.all.forEach(u=>{
-  let online=data.online.includes(u);
-  html+=`<div style="color:${online?'lime':'gray'}">${u}</div>`;
- });
- document.getElementById("users").innerHTML=html;
-});
-
-// CHAT
-function sendChat(){
- let m=document.getElementById("msg").value;
- socket.emit("chat",{user:myName,msg:m});
-}
-
 socket.on("chat",d=>{
- document.getElementById("chatBox").innerHTML+=`<div>${d.user}: ${d.msg}</div>`;
+  const box = document.getElementById("chatBox");
+  box.innerHTML += `<div class="chat-message"><b>${d.user}</b> ${d.msg}</div>`;
+  box.scrollTop = box.scrollHeight;
 });
 
-// PROFILE
-function loadProfile(){
- fetch("/api/profile")
- .then(r=>r.json())
- .then(d=>{
-  document.getElementById("profileData").innerText="User: "+(d.name||"guest");
- });
-}
-
-// THEMES
-function setTheme(t){
- document.body.className="theme-"+t;
-}
 </script>
-
 </body>
 </html>

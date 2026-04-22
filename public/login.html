@@ -12,11 +12,23 @@
 
 <h2>Login</h2>
 
-<form method="POST" action="/login">
-  <input name="username" placeholder="Username" /><br><br>
-  <input name="password" type="password" placeholder="Password" /><br><br>
+<form id="loginForm" method="POST" action="/login">
+  <input id="username" name="username" placeholder="Username" /><br><br>
+  <input id="password" name="password" type="password" placeholder="Password" /><br><br>
   <button type="submit">Login</button>
+  <button type="button" onclick="loginGuest()" style="background:#555;color:white;margin-left:10px">Login as Guest</button>
+  <input type="hidden" id="isGuest" name="isGuest" value="false">
 </form>
+
+<script>
+function loginGuest() {
+  const guestName = "Guest_" + Math.floor(Math.random()*1000);
+  document.getElementById("username").value = guestName;
+  document.getElementById("password").value = "guest";
+  document.getElementById("isGuest").value = "true";
+  document.getElementById("loginForm").submit();
+}
+</script>
 
 </body>
 </html>

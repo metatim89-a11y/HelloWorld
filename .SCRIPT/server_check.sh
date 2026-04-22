@@ -3,7 +3,7 @@
 echo "=== [SERVER CHECK] ==="
 
 # Find running node process for this project
-PIDS=$(ps aux | grep "node .*index.js" | grep "$(pwd)" | grep -v grep | awk '{print $2}')
+PIDS=$(ps aux | grep "node .*index.js" | grep -v grep | awk '{print $2}')
 
 if [ -z "$PIDS" ]; then
   echo "[STATUS] ❌ OFFLINE"
