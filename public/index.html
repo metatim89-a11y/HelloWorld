@@ -37,7 +37,35 @@
 <div class="main-container">
 
 <div id="home" class="page">
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin:auto">
+  <div class="card" style="margin-bottom:30px; text-align:left;">
+    <h2 style="margin-top:0; color:var(--accent-color);">Welcome to the HelloWorld Platform</h2>
+    <p>This is a multi-functional developer and gaming environment. Here's what you can do:</p>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin:20px 0;">
+      <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; border-left:4px solid var(--accent-color);">
+        <h4 style="margin:0 0 10px 0;">🎮 Games</h4>
+        <p style="font-size:0.85rem; margin:0; opacity:0.8;">Play Chess, Connect 4, Tic Tac Toe, or Merge Numbers against others or the Gemma AI.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; border-left:4px solid var(--success);">
+        <h4 style="margin:0 0 10px 0;">💬 Community</h4>
+        <p style="font-size:0.85rem; margin:0; opacity:0.8;">Chat with other online users in real-time or ask the Gemma AI for help using <code>@ai</code>.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; border-left:4px solid var(--warning);">
+        <h4 style="margin:0 0 10px 0;">📁 Dev Tools</h4>
+        <p style="font-size:0.85rem; margin:0; opacity:0.8;">Explore the file system, edit code directly in the browser, and run scripts in the terminal.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; border-left:4px solid var(--error);">
+        <h4 style="margin:0 0 10px 0;">🪙 Rewards</h4>
+        <p style="font-size:0.85rem; margin:0; opacity:0.8;">Claim your daily RobV and TimM coins right here or on your profile page.</p>
+      </div>
+    </div>
+
+    <div id="homeClaims" style="display:none; gap:15px; margin-top:20px; padding-top:20px; border-top:1px solid var(--border-color);">
+      <button onclick="claimCoin('RobV')" style="background:linear-gradient(135deg, #38bdf8, #1e3a8a); flex:1;">Claim 1000 RobV Coins</button>
+      <button onclick="claimCoin('TimM')" style="background:linear-gradient(135deg, #f59e0b, #78350f); flex:1;">Claim 1000 TimM Coins</button>
+    </div>
+  </div>
+
+  <div id="authSection" style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin:auto">
     <div class="card">
       <h3 style="margin-top:0">Login</h3>
       <p style="color:var(--text-secondary); font-size: 0.9rem;">Welcome back! Please enter your credentials.</p>
@@ -188,6 +216,20 @@ function showProfile() {
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px">
           <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:12px;">
             <h3 style="color:var(--accent-color); margin-top:0;">${d.username}</h3>
+            
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+              <div style="background:linear-gradient(135deg, #38bdf8, #1e3a8a); padding:15px; border-radius:10px; flex:1; text-align:center;">
+                <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.8; margin-bottom:5px;">RobV Coins</div>
+                <div style="font-size:1.4rem; font-weight:bold;">${d.robvCoins || 0}</div>
+                <button onclick="claimCoin('RobV')" style="font-size:0.7rem; padding:4px 8px; margin-top:8px; background:rgba(255,255,255,0.2);">Claim 1000</button>
+              </div>
+              <div style="background:linear-gradient(135deg, #f59e0b, #78350f); padding:15px; border-radius:10px; flex:1; text-align:center;">
+                <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.8; margin-bottom:5px;">TimM Coins</div>
+                <div style="font-size:1.4rem; font-weight:bold;">${d.timmCoins || 0}</div>
+                <button onclick="claimCoin('TimM')" style="font-size:0.7rem; padding:4px 8px; margin-top:8px; background:rgba(255,255,255,0.2);">Claim 1000</button>
+              </div>
+            </div>
+
             <div style="display:grid; gap:10px; font-size:0.95rem;">
               <div><b>Name:</b> ${p.name || 'N/A'}</div>
               <div><b>Email:</b> ${p.email || 'N/A'}</div>
@@ -232,6 +274,23 @@ function showProfile() {
     });
 }
 
+function claimCoin(coinType) {
+  fetch('/api/claim-coin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coinType })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      alert(`Success! You now have ${d.balance} ${coinType} coins.`);
+      showProfile(); // Refresh UI
+    } else {
+      alert(d.error);
+    }
+  });
+}
+
 function signup() {
   const data = {
     username: document.getElementById("regUser").value,
@@ -255,19 +314,33 @@ function signup() {
 }
 
 function loginVisitor(){
+  const guestName = "Guest_" + Math.floor(Math.random()*1000);
   fetch("/login",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({username:"Guest_" + Math.floor(Math.random()*1000), password:"guest", isGuest:true})
+    body:JSON.stringify({username: guestName, password:"guest", isGuest:true})
   })
   .then(r=>r.json())
   .then(d=>{
     if(d.success) {
-      socket.emit("join",{room:"room1",username:d.username}); // Need to handle server returning name
-      location.reload(); // Simple way to reset state
+      // Don't reload, just join and go to games
+      socket.emit("join",{room:"room1",username: guestName});
+      document.getElementById("authSection").style.display = "none";
+      openPage('games');
     }
   });
 }
+
+// Auto-join on load if already logged in
+fetch('/api/profile')
+  .then(r => r.json())
+  .then(d => {
+    if (d.username) {
+      socket.emit("join", {room: "room1", username: d.username});
+      document.getElementById("authSection").style.display = "none";
+      if (!d.isGuest) document.getElementById("homeClaims").style.display = "flex";
+    }
+  });
 
 function login(){
   const username = document.getElementById("user").value;
@@ -282,6 +355,8 @@ function login(){
   .then(d=>{
     if(d.success) {
       socket.emit("join",{room:"room1",username});
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("homeClaims").style.display = "flex";
       openPage('games');
     } else alert("Invalid credentials");
   });
@@ -452,6 +527,10 @@ function loadGame(name){
   currentGameName = name;
   document.getElementById("game").dataset.activeGame = name;
   const g = state[name];
+  if (!g) {
+    document.getElementById("game").innerHTML = "Loading game state...";
+    return;
+  }
   const statusEl = document.getElementById("gameStatus");
   let statusText = g.winner ? (g.winner === "draw" ? "Game Draw!" : "Winner: " + g.winner) : "Turn: " + g.turn;
   if (g.llmEnabled) statusText += " (Gemma AI)";
@@ -461,6 +540,7 @@ function loadGame(name){
   if(name==="chess") drawChess(g);
   else if(name==="connect4") drawC4(g);
   else if(name==="tictactoe") drawTTT(g);
+  else if(name==="merge") drawMerge(g);
   
   document.getElementById("game").innerHTML += `
     <div class="game-controls" style="margin-top:20px; display:flex; justify-content:center; gap:10px">
@@ -476,6 +556,15 @@ function loadGame(name){
 
 
 // DRAWING FUNCTIONS (Keep existing logic but apply new classes if needed)
+function drawMerge(g) {
+  let h = `<div style="margin-bottom:10px; font-size:1.2rem; font-weight:bold; color:var(--accent-color)">Score: ${g.score}</div>`;
+  h += '<div class="board merge-board" style="grid-template-columns:repeat(5, 60px); gap:8px;">';
+  g.grid.forEach((p, i) => {
+    const colorClass = `num-${p}`;
+    h += `<div class="cell merge-cell ${colorClass}" style="width:60px; height:60px; font-size:1.1rem; font-weight:800;" onclick="move('merge',${i})">${p || ''}</div>`;
+  });
+  document.getElementById("game").innerHTML = h + '</div>';
+}
 function drawChess(g){
   let h='<div class="board chess-board" style="grid-template-columns:repeat(8, 55px);">';
   const pieces = {'K':'♚','Q':'♛','R':'♜','B':'♝','N':'♞','P':'♟','k':'♚','q':'♛','r':'♜','b':'♝','n':'♞','p':'♟'};
@@ -498,10 +587,10 @@ function drawC4(g){
 }
 
 function drawTTT(g){
-  let h='<div class="board ttt-board" style="grid-template-columns:repeat(3, 100px);">';
+  let h='<div class="board ttt-board" style="grid-template-columns:repeat(3, 100px); gap: 10px; justify-content: center;">';
   g.board.forEach((p,i)=>{
     const win = g.winLine && g.winLine.includes(i) ? 'win-animate' : '';
-    h+=`<div class="cell ttt-cell ${win}" data-val="${p}" onclick="move('tictactoe',${i})">${p}</div>`;
+    h+=`<div class="cell ttt-cell ${win}" style="width:100px; height:100px;" data-val="${p}" onclick="move('tictactoe',${i})">${p}</div>`;
   });
   document.getElementById("game").innerHTML = h + '</div>';
 }

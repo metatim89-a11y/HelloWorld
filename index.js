@@ -4,6 +4,19 @@ const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const fs = require('fs');
+const { exec, spawn, execSync } = require('child_process');
+
+// CLEANUP: Kill any existing processes on ports 3000 and 11434
+try {
+  console.log("Cleaning up existing processes...");
+  // Kill llama-server
+  try { execSync('pkill -f llama-server'); } catch(e) {}
+  // Kill anything on port 3000 (Node server)
+  try { execSync('lsof -t -i:3000 | xargs kill -9'); } catch(e) {}
+  console.log("Cleanup complete.");
+} catch (err) {
+  console.log("Cleanup note: No existing processes to clear.");
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -29,8 +42,6 @@ if(fs.existsSync(USERS_FILE)) {
 function saveUsers() {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
-
-const { exec, spawn } = require('child_process');
 
 // Start llama-server for Gemma AI
 const aiServer = spawn('/data/data/com.termux/files/home/llama.cpp/build/bin/llama-server', [
@@ -62,10 +73,40 @@ app.post('/api/signup', (req, res) => {
     password,
     profile: { name, email, phone, address },
     stats: { wins: 0, losses: 0, draws: 0, games: 0 },
-    history: []
+    history: [],
+    robvCoins: 0,
+    timmCoins: 0,
+    lastRobVClaim: 0,
+    lastTimMClaim: 0
   };
   saveUsers();
   res.json({ success: true });
+});
+
+app.post('/api/claim-coin', requireAuth, (req, res) => {
+  const { coinType } = req.body;
+  const username = req.session.user.name;
+  const user = users[username];
+
+  if (!user) return res.status(404).json({ success: false, error: "User not found" });
+  if (req.session.user.isGuest) return res.status(403).json({ success: false, error: "Guests cannot claim coins" });
+
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const claimField = coinType === 'RobV' ? 'lastRobVClaim' : 'lastTimMClaim';
+  const coinField = coinType === 'RobV' ? 'robvCoins' : 'timmCoins';
+
+  if (now - (user[claimField] || 0) < dayMs) {
+    const remaining = dayMs - (now - user[claimField]);
+    const hours = Math.ceil(remaining / (60 * 60 * 1000));
+    return res.json({ success: false, error: `Wait ${hours} more hours` });
+  }
+
+  user[coinField] = (user[coinField] || 0) + 1000;
+  user[claimField] = now;
+  saveUsers();
+
+  res.json({ success: true, balance: user[coinField] });
 });
 
 app.get('/api/profile', (req, res) => {
@@ -81,7 +122,11 @@ app.get('/api/profile', (req, res) => {
     username, 
     profile: users[username].profile, 
     stats: users[username].stats,
-    history: users[username].history 
+    history: users[username].history,
+    robvCoins: users[username].robvCoins || 0,
+    timmCoins: users[username].timmCoins || 0,
+    lastRobVClaim: users[username].lastRobVClaim || 0,
+    lastTimMClaim: users[username].lastTimMClaim || 0
   });
 });
 app.get('/api/files', requireAuth, (req, res) => {

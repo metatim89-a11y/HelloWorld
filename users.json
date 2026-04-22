@@ -1,0 +1,45 @@
+{
+  "RobV": {
+    "password": "RobV",
+    "profile": {
+      "name": "Robbie V",
+      "email": "rob@example.com",
+      "phone": "123456",
+      "address": "123 Dev Lane"
+    },
+    "stats": {
+      "wins": 0,
+      "losses": 0,
+      "draws": 0,
+      "games": 0
+    },
+    "history": []
+  },
+  "TimM": {
+    "password": "TimM",
+    "profile": {
+      "name": "Tim M",
+      "email": "tim@example.com",
+      "phone": "654321",
+      "address": "456 Code Rd"
+    },
+    "stats": {
+      "wins": 1,
+      "losses": 0,
+      "draws": 0,
+      "games": 1
+    },
+    "history": [
+      {
+        "game": "tictactoe",
+        "result": "Win",
+        "opponent": "Self",
+        "time": "4/21/2026, 9:00:16 PM"
+      }
+    ],
+    "robvCoins": 1000,
+    "lastRobVClaim": 1776880878710,
+    "timmCoins": 1000,
+    "lastTimMClaim": 1776880882203
+  }
+}
